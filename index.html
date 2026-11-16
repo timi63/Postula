@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Postula</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Mise en page : bandeau cobalt avec un radar de proximité (l'entreprise au centre, les candidats autour), puis sections claires sobres. */
+:root {
+  --bg: #F4F5F9;
+  --surface: #FFFFFF;
+  --ink: #0E1630;
+  --muted: #4F5B78;
+  --line: #D9DEEA;
+  --accent: #1B3BD6;
+  --on-accent: #FFFFFF;
+  --soft: #E8ECFB;
+  --inv-bg: #0E1630;
+  --inv-fg: #F4F5F9;
+  --inv-muted: #AEB8D4;
+  --hero-bg: #1B3BD6;
+  --hero-ink: #FFFFFF;
+  --hero-soft: rgba(255,255,255,.82);
+  --hero-line: rgba(255,255,255,.26);
+  --signal: #FF7A1A;
+  --danger: #B42318;
+  --ok: #067647;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A0F1E; --surface: #121A2E; --ink: #E9EDF7; --muted: #9AA6C2; --line: #243050;
+    --accent: #8FA8FF; --on-accent: #0A0F1E; --soft: #18223F;
+    --inv-bg: #1A2FA3; --inv-fg: #FFFFFF; --inv-muted: #C3CDF5;
+    --hero-bg: #16288F; --danger: #F97066; --ok: #47CD89;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A0F1E; --surface: #121A2E; --ink: #E9EDF7; --muted: #9AA6C2; --line: #243050;
+  --accent: #8FA8FF; --on-accent: #0A0F1E; --soft: #18223F;
+  --inv-bg: #1A2FA3; --inv-fg: #FFFFFF; --inv-muted: #C3CDF5;
+  --hero-bg: #16288F; --danger: #F97066; --ok: #47CD89;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 20px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.sm { min-height: 38px; padding: 0 14px; font-size: .9rem; }
+
+/* Bandeau */
+.hero { background: var(--hero-bg); color: var(--hero-ink); overflow: hidden; }
+.hero .btn { background: transparent; border-color: var(--hero-line); color: var(--hero-ink); }
+.hero .btn.primary { background: var(--hero-ink); border-color: var(--hero-ink); color: var(--hero-bg); }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px; }
+.logo { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.03em; }
+.logo i { font-style: normal; color: var(--signal); }
+.hero-grid { display: grid; gap: 28px; padding-block: 28px 56px; align-items: center; }
+.hero h1 { font-size: clamp(2.4rem, 9vw, 4.4rem); font-weight: 800; letter-spacing: -0.035em; }
+.hero h1 em { font-style: normal; color: var(--signal); }
+.hero .lead { margin-top: 18px; font-size: 1.1rem; color: var(--hero-soft); max-width: 46ch; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.radar { width: 100%; max-width: 420px; justify-self: center; height: auto; display: block; }
+@media (min-width: 840px) { .hero-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; } }
+
+/* Animation du radar : l'état final reste visible sans animation */
+.dot { transform-box: fill-box; transform-origin: center; animation: pop .5s ease-out backwards; animation-delay: calc(var(--i) * 110ms + 300ms); }
+.link { stroke-dasharray: 5 6; animation: fade .6s ease-out backwards; animation-delay: 1.6s; }
+.pulse { transform-box: fill-box; transform-origin: center; animation: pulse 4.5s ease-out infinite; }
+@keyframes pop { from { opacity: 0; transform: scale(.2); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pulse { from { transform: scale(.1); opacity: .6; } to { transform: scale(1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .dot, .link, .pulse { animation: none; } .pulse { opacity: 0; } }
+
+/* Sections */
+section { padding-block: 52px; }
+section + section { border-top: 1px solid var(--line); }
+.kicker { font-size: .78rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+h2 { font-size: clamp(1.6rem, 5vw, 2.4rem); font-weight: 800; max-width: 22ch; }
+.sec-head { margin-bottom: 28px; }
+.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+.panel { border-radius: 10px; padding: 28px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.panel h3 { font-size: 1.5rem; font-weight: 800; }
+.panel ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.panel.cand { background: var(--soft); }
+.panel.cand ul { color: var(--muted); }
+.panel.ent { background: var(--inv-bg); color: var(--inv-fg); }
+.panel.ent ul { color: var(--inv-muted); }
+.tag { justify-self: start; font-size: .75rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; border: 1px solid currentColor; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.steps li::before { content: counter(s); font-family: var(--font-display); font-weight: 800; font-size: 3.4rem; line-height: 1; color: var(--accent); }
+.steps h3 { font-size: 1.2rem; font-weight: 800; }
+.steps p { color: var(--muted); }
+
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 26px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.plan.hl { border: 2px solid var(--accent); }
+.plan .name { font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.plan .badge { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: var(--accent); color: var(--on-accent); }
+.plan .price { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.plan .note { color: var(--muted); font-size: .94rem; }
+
+#acces .box { max-width: 460px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 26px; display: grid; gap: 16px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+.seg button { min-height: 42px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-weight: 600; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+form { display: grid; gap: 14px; }
+label { display: grid; gap: 6px; font-size: .92rem; font-weight: 500; }
+input { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.msg { min-height: 1.4em; font-size: .92rem; }
+.msg.err { color: var(--danger); }
+.msg.ok { color: var(--ok); }
+footer { border-top: 1px solid var(--line); padding-block: 26px 40px; color: var(--muted); font-size: .88rem; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="hero">
+  <div class="wrap">
+    <header class="top">
+      <div class="logo">Postula<i>.</i></div>
+      <button class="btn sm" type="button" data-go="login">Connexion</button>
+    </header>
+    <div class="hero-grid">
+      <div>
+        <h1>Votre prochain collègue habite <em>à côté.</em></h1>
+        <p class="lead">Postula réunit entreprises et candidats d'un même coin de France. Les candidats s'inscrivent gratuitement. Les entreprises voient qui est le plus proche et le contactent directement.</p>
+        <div class="cta">
+          <button class="btn primary" type="button" data-go="signup" data-role="candidat">Je cherche un emploi</button>
+          <button class="btn" type="button" data-go="signup" data-role="entreprise">Je recrute</button>
+        </div>
+      </div>
+      <svg class="radar" viewBox="0 0 400 400" role="img" aria-label="Schéma : une entreprise au centre, des candidats répartis autour, le plus proche relié à elle">
+        <circle cx="200" cy="200" r="64" fill="none" stroke="var(--hero-line)" stroke-width="1.5"/>
+        <circle cx="200" cy="200" r="128" fill="none" stroke="var(--hero-line)" stroke-width="1.5"/>
+        <circle cx="200" cy="200" r="192" fill="none" stroke="var(--hero-line)" stroke-width="1.5"/>
+        <circle class="pulse" cx="200" cy="200" r="192" fill="none" stroke="var(--hero-ink)" stroke-width="2"/>
+        <line class="link" x1="200" y1="200" x2="232" y2="172" stroke="var(--signal)" stroke-width="2.5"/>
+        <g fill="var(--hero-ink)" fill-opacity=".5">
+          <circle class="dot" style="--i:6" cx="285" cy="230" r="5"/>
+          <circle class="dot" style="--i:7" cx="120" cy="150" r="5"/>
+          <circle class="dot" style="--i:8" cx="210" cy="305" r="5"/>
+          <circle class="dot" style="--i:9" cx="300" cy="120" r="5"/>
+          <circle class="dot" style="--i:10" cx="95" cy="262" r="5"/>
+          <circle class="dot" style="--i:11" cx="332" cy="215" r="5"/>
+          <circle class="dot" style="--i:12" cx="170" cy="62" r="5"/>
+          <circle class="dot" style="--i:13" cx="60" cy="172" r="5"/>
+          <circle class="dot" style="--i:14" cx="350" cy="300" r="5"/>
+          <circle class="dot" style="--i:15" cx="42" cy="262" r="5"/>
+          <circle class="dot" style="--i:16" cx="240" cy="352" r="5"/>
+          <circle class="dot" style="--i:17" cx="312" cy="52" r="5"/>
+        </g>
+        <g fill="var(--hero-ink)">
+          <circle class="dot" style="--i:4" cx="150" cy="235" r="7"/>
+          <circle class="dot" style="--i:5" cx="262" cy="150" r="7"/>
+        </g>
+        <circle class="dot" style="--i:3" cx="232" cy="172" r="13" fill="none" stroke="var(--signal)" stroke-width="2.5"/>
+        <circle class="dot" style="--i:2" cx="232" cy="172" r="7" fill="var(--signal)"/>
+        <rect x="190" y="190" width="20" height="20" rx="4" fill="var(--hero-ink)"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section>
+    <div class="sec-head">
+      <div class="kicker">Pour qui</div>
+      <h2>Deux entrées, un même but</h2>
+    </div>
+    <div class="duo">
+      <div class="panel cand">
+        <span class="tag">Candidats</span>
+        <h3>Gratuit, toujours</h3>
+        <ul>
+          <li>Créez votre profil en quelques minutes</li>
+          <li>Les entreprises inscrites vous trouvent et vous contactent</li>
+          <li>Consultez les entreprises inscrites et leurs coordonnées</li>
+        </ul>
+      </div>
+      <div class="panel ent">
+        <span class="tag">Entreprises</span>
+        <h3>Les plus proches d'abord</h3>
+        <ul>
+          <li>Cherchez un métier, les profils arrivent du plus proche au plus loin</li>
+          <li>Posez votre question à l'assistant IA en une phrase</li>
+          <li>Accédez aux coordonnées complètes dès l'inscription</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="kicker">Côté entreprise</div>
+      <h2>Du compte au premier contact</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Inscrivez-vous</h3><p>Choisissez la formule qui vous convient. L'accès aux candidats s'ouvre tout de suite.</p></li>
+      <li><h3>Cherchez</h3><p>Tapez un métier ou demandez à l'assistant IA. Les candidats les plus proches s'affichent en premier.</p></li>
+      <li><h3>Contactez</h3><p>Coordonnées complètes sous les yeux : appelez ou écrivez sans intermédiaire.</p></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <div class="kicker">Tarifs</div>
+      <h2>Trois formules pour les entreprises</h2>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="name">Mensuel</div>
+        <div class="price">39 €</div>
+        <div class="note">Accès pendant un mois.</div>
+      </div>
+      <div class="plan">
+        <div class="name">Par période</div>
+        <div class="price">49 €</div>
+        <div class="note">Accès pendant 60 jours.</div>
+      </div>
+      <div class="plan hl">
+        <div class="name">Annuel <span class="badge">Meilleur prix</span></div>
+        <div class="price">400 €</div>
+        <div class="note">Accès pendant un an, soit 68 € d'économie par rapport au mensuel.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="acces">
+    <div class="sec-head">
+      <div class="kicker">Accès</div>
+      <h2 id="acces-titre">Connexion</h2>
+    </div>
+    <div class="box">
+      <div class="seg" role="group" aria-label="Type de compte">
+        <button type="button" id="r-candidat" aria-pressed="true">Candidat</button>
+        <button type="button" id="r-entreprise" aria-pressed="false">Entreprise</button>
+      </div>
+      <form id="form" novalidate>
+        <label id="l-nom" for="nom" hidden>Nom complet
+          <input id="nom" type="text" autocomplete="name">
+        </label>
+        <label for="email">Adresse e-mail
+          <input id="email" type="email" autocomplete="email" inputmode="email" required>
+        </label>
+        <label for="mdp">Mot de passe
+          <input id="mdp" type="password" autocomplete="current-password" minlength="8" required>
+        </label>
+        <div class="msg" id="msg" role="status" aria-live="polite"></div>
+        <button class="btn primary" type="submit" id="submit">Se connecter</button>
+      </form>
+      <button class="btn sm" type="button" id="switch">Pas encore de compte ? Créer un compte</button>
+    </div>
+  </section>
+
+  <footer>Postula, le recrutement de proximité.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  var SUPABASE_URL = "https://bayyeawxengjbtuqhgme.supabase.co";
+  var SUPABASE_KEY = "sb_publishable_brxFBHokU3KhlBceRkL2tQ_NoqQIAeV";
+  var client = null;
+  try { client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch (e) {}
+
+  var mode = "login", role = "candidat";
+  var $ = function (id) { return document.getElementById(id); };
+  var form = $("form"), msg = $("msg");
+
+  function render() {
+    var signup = mode === "signup";
+    $("acces-titre").textContent = signup ? "Créer un compte" : "Connexion";
+    $("submit").textContent = signup ? "Créer mon compte" : "Se connecter";
+    $("switch").textContent = signup ? "Déjà un compte ? Se connecter" : "Pas encore de compte ? Créer un compte";
+    $("l-nom").hidden = !signup;
+    $("mdp").autocomplete = signup ? "new-password" : "current-password";
+    $("r-candidat").setAttribute("aria-pressed", role === "candidat");
+    $("r-entreprise").setAttribute("aria-pressed", role === "entreprise");
+    $("l-nom").firstChild.nodeValue = role === "entreprise" ? "Nom de l'entreprise" : "Nom complet";
+    setMsg("", "");
+  }
+  function setMsg(text, kind) { msg.textContent = text; msg.className = "msg" + (kind ? " " + kind : ""); }
+
+  document.querySelectorAll("[data-go]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      mode = b.getAttribute("data-go");
+      if (b.getAttribute("data-role")) role = b.getAttribute("data-role");
+      render();
+      $("acces").scrollIntoView({ block: "start" });
+    });
+  });
+  $("r-candidat").addEventListener("click", function () { role = "candidat"; render(); });
+  $("r-entreprise").addEventListener("click", function () { role = "entreprise"; render(); });
+  $("switch").addEventListener("click", function () { mode = mode === "login" ? "signup" : "login"; render(); });
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var email = $("email").value.trim(), mdp = $("mdp").value, nom = $("nom").value.trim();
+    if (!email || mdp.length < 8) { setMsg("Saisissez une adresse e-mail et un mot de passe d'au moins 8 caractères.", "err"); return; }
+    if (mode === "signup" && !nom) { setMsg("Indiquez votre nom.", "err"); return; }
+    if (!client) { setMsg("Le service de connexion n'est pas disponible dans cet aperçu.", "err"); return; }
+    setMsg("Un instant…", "");
+    try {
+      var res = mode === "signup"
+        ? await client.auth.signUp({ email: email, password: mdp, options: { data: { role: role, nom: nom } } })
+        : await client.auth.signInWithPassword({ email: email, password: mdp });
+      if (res.error) { setMsg(res.error.message, "err"); return; }
+      setMsg(mode === "signup" ? "Compte créé. Vérifiez votre boîte mail si une confirmation est demandée." : "Connexion réussie.", "ok");
+    } catch (err) {
+      setMsg("Connexion au serveur impossible depuis cet aperçu. Elle fonctionnera une fois le site mis en ligne.", "err");
+    }
+  });
+  render();
+})();
+</script>
